@@ -142,7 +142,6 @@ class SignUpEndpoint(APIView):
 
             username = uuid.uuid4().hex
             user = User(
-                username=username,
                 email=email,
                 first_name=first_name,
                 last_name=last_name,

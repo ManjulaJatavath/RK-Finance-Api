@@ -37,7 +37,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     last_name = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
     mobile_number = models.CharField(max_length=15, unique=True)
-    password = models.CharField(max_length=255)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='user')
     profile_img = models.URLField(blank=True, null=True)
     address = models.TextField(blank=True, null=True)
