@@ -1286,6 +1286,7 @@ class GoldLoanDashboardStatsEndpoint(BaseAPIView):
             },
         })
 class GoldRateEndpoint(BaseAPIView):
+    permission_classes = [AllowAny]
     def get(request):
         try:
             res = requests.get(
