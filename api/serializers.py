@@ -410,6 +410,7 @@ class GoldLoanApplicationCreateSerializer(serializers.ModelSerializer):
             # section 5
             'loan_amount', 'loan_tenure', 'repayment_mode',
             'interest_payment_frequency', 'loan_purpose', 'processing_fee_consent',
+            'interest_rate',
 
             # section 6
             'account_holder_name', 'bank_name', 'branch_name',
