@@ -11,9 +11,15 @@ from .base import BaseAPIView
 from django.conf import settings
 from django.utils import timezone
 from django.db import models
-from .models import FDApplication, FDInterestPayout, FDInterestRateSlab, FDPayoutStatusChoices, FDStatusChoices, GoldLoanApplication, LoanStatusChoices, User, Notification, Agreement, LoanApplication, LoanPayment, calculate_fd_maturity, calculate_premature_closure, generate_payout_schedule
+# from .models import FDApplication, FDInterestPayout, FDInterestRateSlab, FDPayoutStatusChoices, FDStatusChoices, GoldLoanApplication, LoanStatusChoices, User, Notification, Agreement, LoanApplication, LoanPayment, calculate_fd_maturity, calculate_premature_closure, generate_payout_schedule
+from .models import GoldLoanApplication, LoanStatusChoices, User, Notification, Agreement, LoanApplication, LoanPayment
+# from .serializers import (
+#     FDApplicationAdminUpdateSerializer, FDApplicationCreateSerializer, FDApplicationDetailSerializer, FDApplicationListSerializer, FDCalculatorSerializer, FDInterestPayoutSerializer, FDInterestRateSlabSerializer, FDRenewSerializer, GoldLoanApplicationCreateSerializer, GoldLoanApplicationSerializer, MarkPaidSerializer, UserSerializer, UserCreateSerializer, NotificationSerializer,
+#     AgreementSerializer, LoanApplicationSerializer,
+#     LoanApplicationCreateSerializer, LoanPaymentSerializer
+# )
 from .serializers import (
-    FDApplicationAdminUpdateSerializer, FDApplicationCreateSerializer, FDApplicationDetailSerializer, FDApplicationListSerializer, FDCalculatorSerializer, FDInterestPayoutSerializer, FDInterestRateSlabSerializer, FDRenewSerializer, GoldLoanApplicationCreateSerializer, GoldLoanApplicationSerializer, MarkPaidSerializer, UserSerializer, UserCreateSerializer, NotificationSerializer,
+   GoldLoanApplicationCreateSerializer, GoldLoanApplicationSerializer, UserSerializer, UserCreateSerializer, NotificationSerializer,
     AgreementSerializer, LoanApplicationSerializer,
     LoanApplicationCreateSerializer, LoanPaymentSerializer
 )
