@@ -1071,6 +1071,54 @@ class GoldLoanApprovalEndpoint(BaseAPIView):
     model              = GoldLoanApplication
     serializer_class   = GoldLoanApplicationSerializer
     permission_classes = [IsAuthenticated]
+    
+    def put(self, request, pk):
+        if request.user.role != 'admin':
+            return Response(
+                {'success': False, 'message': 'Only admins can update loan status.'},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        try:
+            gold_loan = GoldLoanApplication.objects.get(pk=pk)
+        except GoldLoanApplication.DoesNotExist:
+            return Response(
+                {'success': False, 'message': 'Gold loan application not found.'},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        new_status = request.data.get('status')
+        valid_statuses = [choice[0] for choice in LoanStatusChoices.choices]
+
+        if not new_status or new_status not in valid_statuses:
+            return Response(
+                {'success': False, 'message': f'status must be one of: {", ".join(valid_statuses)}'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        old_status        = gold_loan.status
+        gold_loan.status  = new_status
+        gold_loan.admin_remarks = request.data.get('remarks', gold_loan.admin_remarks)
+        gold_loan.save(update_fields=['status', 'admin_remarks', 'updated_at'])
+
+        # Notify user about status change
+        STATUS_MESSAGES = {
+            LoanStatusChoices.PENDING:      ('Gold Loan Status Updated', f'Your application (Ref: {gold_loan.reference_number}) is now pending review.'),
+            LoanStatusChoices.UNDER_REVIEW: ('Application Under Review 🔍', f'Your gold loan application (Ref: {gold_loan.reference_number}) is currently under review. We will notify you shortly.'),
+            LoanStatusChoices.APPROVED:     ('Gold Loan Approved 🎉', f'Your gold loan application (Ref: {gold_loan.reference_number}) has been approved.'),
+            LoanStatusChoices.REJECTED:     ('Gold Loan Application Rejected', f'Your gold loan application (Ref: {gold_loan.reference_number}) could not be approved. Reason: {gold_loan.admin_remarks or "Please contact the branch."}'),
+            LoanStatusChoices.DISBURSED:    ('Loan Disbursed ✅', f'Your gold loan (Ref: {gold_loan.reference_number}) has been disbursed. Please check your account.'),
+            LoanStatusChoices.CLOSED:       ('Loan Closed', f'Your gold loan (Ref: {gold_loan.reference_number}) has been closed. Thank you for banking with us.'),
+        }
+
+        title, summary = STATUS_MESSAGES.get(new_status, ('Status Updated', f'Your loan status has been updated to {new_status}.'))
+        Notification.objects.create(user=gold_loan.user, title=title, summary=summary)
+
+        return Response({
+            'success': True,
+            'message': f'Status updated from {old_status} to {new_status}.',
+            'data':    self.serializer_class(gold_loan).data,
+        })
 
     def post(self, request, pk):
         if request.user.role != 'admin':
