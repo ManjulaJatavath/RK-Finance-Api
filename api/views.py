@@ -1287,7 +1287,7 @@ class GoldLoanDashboardStatsEndpoint(BaseAPIView):
         })
 class GoldRateEndpoint(BaseAPIView):
     permission_classes = [AllowAny]
-    def get(request):
+    def get(self, request):
         try:
             res = requests.get(
                 "https://www.goodreturns.in/gold-rates-in-hyderabad.html",
@@ -1296,6 +1296,6 @@ class GoldRateEndpoint(BaseAPIView):
             )
             soup = BeautifulSoup(res.text, "html.parser")
             rate = soup.select_one("#gold_price_table tr:nth-child(2) td:nth-child(2)")
-            return JsonResponse({"success": True, "rate": rate.text.strip().replace(",", "")})
+            return Response({"success": True, "rate": rate.text.strip().replace(",", "")})
         except Exception as e:
-            return JsonResponse({"success": False, "rate": None})
+            return Response({"success": False, "rate": None})
