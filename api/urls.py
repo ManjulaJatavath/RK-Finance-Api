@@ -60,6 +60,8 @@ urlpatterns = [
         name='gold_loan_application_detail',
     ),
 
+    path("gold-rate/", views.GoldRateEndpoint.as_view(), name="gold-rate"),
+
     # ══════════════════════════════════════════════════════════════════════════
     # ADMIN ACTIONS
     # ══════════════════════════════════════════════════════════════════════════

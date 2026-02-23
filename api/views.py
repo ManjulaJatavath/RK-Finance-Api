@@ -11,9 +11,9 @@ from .base import BaseAPIView
 from django.conf import settings
 from django.utils import timezone
 from django.db import models
-from .models import GoldLoanApplication, LoanStatusChoices, User, Notification, Agreement, LoanApplication, LoanPayment
+from .models import FDApplication, FDInterestPayout, FDInterestRateSlab, FDPayoutStatusChoices, FDStatusChoices, GoldLoanApplication, LoanStatusChoices, User, Notification, Agreement, LoanApplication, LoanPayment, calculate_fd_maturity, calculate_premature_closure, generate_payout_schedule
 from .serializers import (
-    GoldLoanApplicationCreateSerializer, GoldLoanApplicationSerializer, UserSerializer, UserCreateSerializer, NotificationSerializer,
+    FDApplicationAdminUpdateSerializer, FDApplicationCreateSerializer, FDApplicationDetailSerializer, FDApplicationListSerializer, FDCalculatorSerializer, FDInterestPayoutSerializer, FDInterestRateSlabSerializer, FDRenewSerializer, GoldLoanApplicationCreateSerializer, GoldLoanApplicationSerializer, MarkPaidSerializer, UserSerializer, UserCreateSerializer, NotificationSerializer,
     AgreementSerializer, LoanApplicationSerializer,
     LoanApplicationCreateSerializer, LoanPaymentSerializer
 )
@@ -28,6 +28,9 @@ import random
 from django.db.models import Q
 from django.contrib.auth.signals import user_logged_in
 from sentry_sdk import capture_exception, capture_message
+import requests
+from bs4 import BeautifulSoup
+from django.http import JsonResponse
 
 otp_store = {}
 
@@ -1228,3 +1231,16 @@ class GoldLoanDashboardStatsEndpoint(BaseAPIView):
                 'recentGoldLoanApplications':   self.serializer_class(recent_gold_loan_applications, many=True).data,
             },
         })
+class GoldRateEndpoint(BaseAPIView):
+    def get(request):
+        try:
+            res = requests.get(
+                "https://www.goodreturns.in/gold-rates-in-hyderabad.html",
+                headers={"User-Agent": "Mozilla/5.0"},
+                timeout=5
+            )
+            soup = BeautifulSoup(res.text, "html.parser")
+            rate = soup.select_one("#gold_price_table tr:nth-child(2) td:nth-child(2)")
+            return JsonResponse({"success": True, "rate": rate.text.strip().replace(",", "")})
+        except Exception as e:
+            return JsonResponse({"success": False, "rate": None})
